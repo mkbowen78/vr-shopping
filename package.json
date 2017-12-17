@@ -1,13 +1,13 @@
 {
-  "name": "vr-shop",
+  "name": "vr-shopping",
   "version": "1.0.0",
-  "description": "VR Shop Prototype",
   "main": "index.js",
+  "repository": "git@github.com:mkbowen78/vr-shopping.git",
   "scripts": {
     "start": "nodemon server/index.js",
     "build": "webpack -w"
   },
-  "author": "Kevin Bowen",
+  "author": "mkbowen78 <mkbowen78@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "babel-core": "^6.26.0",
