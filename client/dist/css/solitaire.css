@@ -1,0 +1,508 @@
+/* 1. CSS Custom Properties */
+:root {
+  --card-w: 78px;
+  --card-h: 109px;
+  --tableau-facedown: 28px;
+  --tableau-faceup: 44px;
+  --card-radius: 6px;
+  --pile-gap: 10px;
+  --felt-dark: #0d4a24;
+  --felt-light: #1a7a3c;
+  --header-h: 56px;
+}
+
+/* 2. Reset + Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  background: radial-gradient(ellipse at center, var(--felt-light) 0%, var(--felt-dark) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  touch-action: none;
+}
+
+/* Subtle noise texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* 3. Layout */
+#game-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  height: var(--header-h);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  flex-shrink: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+#stats {
+  display: flex;
+  gap: 16px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+#stats span {
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+#controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 10px;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#top-row {
+  display: flex;
+  gap: var(--pile-gap);
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+#top-row .spacer {
+  flex: 1;
+}
+
+#tableau {
+  display: flex;
+  gap: var(--pile-gap);
+  flex: 1;
+  align-items: flex-start;
+}
+
+.tableau-pile {
+  flex: 1;
+  position: relative;
+  min-height: calc(var(--card-h) + 200px);
+}
+
+/* 4. Pile Styles */
+.pile {
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--card-radius);
+  border: 2px dashed rgba(255,255,255,0.25);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pile.drag-over {
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255,215,0,0.4);
+}
+
+.stock-pile::after {
+  content: '↺';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: rgba(255,255,255,0.2);
+  pointer-events: none;
+}
+
+.foundation-pile::after {
+  content: attr(data-suit-symbol);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: rgba(255,255,255,0.15);
+  pointer-events: none;
+}
+
+/* 5. Card Base */
+.card {
+  position: absolute;
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--card-radius);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+  touch-action: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-radius);
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.card img.hidden {
+  display: none;
+}
+
+/* 6. Card Face (CSS Fallback) */
+.card-face {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-radius);
+  background: #fffef8;
+  border: 1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-face .card-rank-tl,
+.card-face .card-rank-br {
+  position: absolute;
+  font-size: calc(var(--card-w) * 0.2);
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-face .card-rank-tl {
+  top: 4px;
+  left: 5px;
+}
+
+.card-face .card-rank-br {
+  bottom: 4px;
+  right: 5px;
+  transform: rotate(180deg);
+}
+
+.card-face .card-rank-tl .suit-small,
+.card-face .card-rank-br .suit-small {
+  font-size: calc(var(--card-w) * 0.15);
+  line-height: 1;
+}
+
+.card-face .card-center-suit {
+  font-size: calc(var(--card-w) * 0.52);
+  line-height: 1;
+}
+
+.card-face.red {
+  color: #cc0000;
+}
+
+.card-face.black {
+  color: #111111;
+}
+
+/* 7. Card Back (CSS Fallback) */
+.card-back {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-radius);
+  background-color: #1a2a6c;
+  border: 1px solid rgba(0,0,0,0.3);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+  overflow: hidden;
+  position: relative;
+  pointer-events: none;
+}
+
+.card-back::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: calc(var(--card-radius) - 2px);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(255,255,255,0.05) 4px,
+    rgba(255,255,255,0.05) 8px
+  );
+}
+
+/* 8. Card States */
+.card.selected {
+  box-shadow: 0 0 0 3px #ffd700, 0 0 15px rgba(255,215,0,0.5);
+  z-index: 50;
+}
+
+.card.face-down {
+  cursor: default;
+}
+
+.card.face-down.flippable {
+  cursor: pointer;
+}
+
+.card.valid-target-card {
+  box-shadow: 0 0 0 2px rgba(100,255,100,0.7), 0 0 10px rgba(100,255,100,0.3);
+}
+
+/* 9. Drag Ghost */
+#drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  transform-origin: top left;
+  transform: rotate(2deg) scale(1.05);
+  opacity: 0.9;
+  transition: none;
+}
+
+#drag-ghost .card {
+  position: relative;
+  display: block;
+}
+
+#drag-ghost .card + .card {
+  margin-top: calc(var(--tableau-faceup) - var(--card-h));
+}
+
+/* 10. Win Screen + Confetti */
+#win-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  backdrop-filter: blur(4px);
+}
+
+#win-screen.hidden {
+  display: none;
+}
+
+#win-content {
+  background: linear-gradient(135deg, #1a7a3c, #0d4a24);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 16px;
+  padding: 40px 48px;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  z-index: 501;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+#win-content h1 {
+  font-size: 48px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  letter-spacing: 1px;
+}
+
+#win-content p {
+  font-size: 18px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+#confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 499;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+}
+
+/* 11. Buttons + Controls */
+.btn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: none;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  letter-spacing: 0.3px;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.btn:hover {
+  background: rgba(0,0,0,0.7);
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn-large {
+  padding: 12px 32px;
+  font-size: 16px;
+  margin-top: 20px;
+  border-radius: 24px;
+}
+
+/* 12. Animations */
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes cardFlip {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+@keyframes snapBack {
+  0% { transform: translate(var(--snap-x), var(--snap-y)); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes cardToFoundation {
+  from { transform: scale(1); }
+  to { transform: scale(0.95); opacity: 0.7; }
+}
+
+/* 13. Responsive Breakpoints */
+@media (max-width: 767px) {
+  :root {
+    --card-w: 62px;
+    --card-h: 87px;
+    --tableau-facedown: 22px;
+    --tableau-faceup: 34px;
+    --pile-gap: 7px;
+  }
+
+  #game-area {
+    padding: 7px;
+    gap: 7px;
+  }
+
+  #stats {
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  #controls {
+    gap: 5px;
+  }
+
+  .btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 479px) {
+  :root {
+    --card-w: 46px;
+    --card-h: 64px;
+    --tableau-facedown: 18px;
+    --tableau-faceup: 26px;
+    --pile-gap: 5px;
+  }
+
+  #game-area {
+    padding: 5px;
+    gap: 5px;
+  }
+
+  #stats {
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  #game-header {
+    padding: 0 8px;
+    height: 48px;
+  }
+
+  .btn {
+    padding: 5px 8px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  #win-content {
+    padding: 24px 28px;
+    margin: 16px;
+  }
+
+  #win-content h1 {
+    font-size: 32px;
+  }
+
+  #win-content p {
+    font-size: 15px;
+  }
+}

@@ -1,10 +1,60 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>VR Shopping - Coming Soon</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="text/javascript" src="bundle.js"></script>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Klondike Solitaire</title>
+  <link rel="stylesheet" href="css/solitaire.css">
+</head>
+<body>
+  <div id="game-container">
+    <header id="game-header">
+      <div id="stats">
+        <span id="score-display">Score: <span id="score">0</span></span>
+        <span id="moves-display">Moves: <span id="moves">0</span></span>
+        <span id="timer-display">Time: <span id="timer">0:00</span></span>
+      </div>
+      <div id="controls">
+        <button id="btn-undo" class="btn">Undo</button>
+        <button id="btn-autocomplete" class="btn" style="display:none">Auto</button>
+        <button id="btn-new" class="btn">New Game</button>
+        <button id="btn-draw-mode" class="btn">Draw 3</button>
+      </div>
+    </header>
+
+    <main id="game-area">
+      <div id="top-row">
+        <div id="stock" class="pile stock-pile" title="Stock"></div>
+        <div id="waste" class="pile waste-pile" title="Waste"></div>
+        <div class="spacer"></div>
+        <div id="foundation-0" class="pile foundation-pile" data-foundation="0" title="Foundation"></div>
+        <div id="foundation-1" class="pile foundation-pile" data-foundation="1" title="Foundation"></div>
+        <div id="foundation-2" class="pile foundation-pile" data-foundation="2" title="Foundation"></div>
+        <div id="foundation-3" class="pile foundation-pile" data-foundation="3" title="Foundation"></div>
+      </div>
+
+      <div id="tableau">
+        <div id="tableau-0" class="pile tableau-pile" data-col="0"></div>
+        <div id="tableau-1" class="pile tableau-pile" data-col="1"></div>
+        <div id="tableau-2" class="pile tableau-pile" data-col="2"></div>
+        <div id="tableau-3" class="pile tableau-pile" data-col="3"></div>
+        <div id="tableau-4" class="pile tableau-pile" data-col="4"></div>
+        <div id="tableau-5" class="pile tableau-pile" data-col="5"></div>
+        <div id="tableau-6" class="pile tableau-pile" data-col="6"></div>
+      </div>
+    </main>
+
+    <div id="win-screen" class="hidden">
+      <div id="win-content">
+        <h1>You Win!</h1>
+        <p id="win-score"></p>
+        <p id="win-time"></p>
+        <button id="btn-win-new" class="btn btn-large">New Game</button>
+      </div>
+      <div id="confetti-container"></div>
+    </div>
+  </div>
+
+  <script src="js/solitaire.js"></script>
+</body>
 </html>
